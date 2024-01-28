@@ -7,9 +7,11 @@
 #ifndef ARTERY_COLLECTIVEPERCEPTIONMOCKSERVICE_H_V08YXH9S
 #define ARTERY_COLLECTIVEPERCEPTIONMOCKSERVICE_H_V08YXH9S
 
-#include "artery/envmod/service/CollectivePerceptionMockMessage.h"
 #include "artery/application/ItsG5Service.h"
+#include "artery/envmod/service/CollectivePerceptionMockMessage.h"
 #include "artery/networking/PositionProvider.h"
+
+#include <fstream>
 #include <unordered_set>
 #include <vector>
 
@@ -20,6 +22,7 @@ class CollectivePerceptionMockService : public ItsG5Service
 {
     public:
         virtual ~CollectivePerceptionMockService();
+        CollectivePerceptionMockService();
 
     protected:
         int numInitStages() const override;
@@ -46,6 +49,10 @@ class CollectivePerceptionMockService : public ItsG5Service
         unsigned mLengthHeader = 0;
         unsigned mLengthFovContainer = 0;
         unsigned mLengthObjectContainer = 0;
+
+        std::stringstream generatedCPMs;
+        std::stringstream receivedCPMs;
+        std::stringstream indicatedCPMs;
 };
 
 } // namespace artery
