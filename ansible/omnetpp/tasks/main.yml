@@ -18,6 +18,7 @@
           - libxml2-dev
           - zlib1g-dev
           - default-jre
+          - libpcap-dev
   become: yes
 
 - name: check state of /opt/omnetpp

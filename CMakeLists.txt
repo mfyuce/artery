@@ -35,6 +35,7 @@ endif()
 set(BUILD_SHARED_LIBS ON CACHE INTERNAL "Cached for propagation to sub-projects with older CMake versions")
 
 check_git_submodule(PATH extern/vanetza REQUIRED_FILES CMakeLists.txt)
+set(BUILD_SOCKTAP ON)
 set(VANETZA_INSTALL ON)
 add_subdirectory(${PROJECT_SOURCE_DIR}/extern/vanetza)
 mark_as_advanced(BUILD_BENCHMARK BUILD_CERTIFY BUILD_SOCKTAP BUILD_TESTS BUILD_USING_CONAN)

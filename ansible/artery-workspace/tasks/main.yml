@@ -18,6 +18,7 @@
           - libssl-dev
           - python3-distutils
           - sumo
+          - libpcap-dev
   become: yes
 
 - name: clone Artery repository
@@ -33,7 +34,7 @@
     repo: "{{ ansible_user_dir }}/artery"
     scope: local
     name: remote.origin.url
-    value: https://github.com/riebl/artery.git
+    value: https://github.com/mfyuce/artery.git
 
 - name: configure refs to fetch for 'origin'
   git_config:

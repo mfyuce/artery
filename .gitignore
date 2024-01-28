@@ -23,3 +23,31 @@ venv/
 
 # CMake default directories
 build/
+/.idea/codeStyles/codeStyleConfig.xml
+/.idea/codeStyles/Project.xml
+/.idea/sonarlint/issuestore/0/d/0ddd99328507bee0bf45d699d0e14840e6468c2e
+/.idea/sonarlint/issuestore/1/2/1291c2e6dbf7ce3fbca1ede3d084cdcb1917bec7
+/.idea/sonarlint/issuestore/3/c/3cac19ba68ce50bf6de67bd310f202579334c697
+/.idea/sonarlint/issuestore/4/2/42e89e4b918c7375b3748812499f5574db6ce15e
+/.idea/sonarlint/issuestore/4/a/4ac5f47ed05ced5dbc25412ccf4bd2f72bf2a6cf
+/.idea/sonarlint/issuestore/5/0/50743d32504562bf56d967a507ab14bc7e9d7a6f
+/.idea/sonarlint/issuestore/7/4/7445606fbf8f3683cd42bdc54b05d7a0bc2dfc44
+/.idea/sonarlint/issuestore/8/c/8ccddd01c7b31786124c28fdfed80d8cc4d3417a
+/.idea/sonarlint/issuestore/8/e/8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
+/.idea/sonarlint/issuestore/b/a/ba4e7fcbda869985762d39de443303267d4b9311
+/.idea/sonarlint/issuestore/e/1/e1c06ac3ec549b51331f46a3e4282f554ed6396f
+/.idea/sonarlint/issuestore/index.pb
+/.idea/sonarlint/securityhotspotstore/0/d/0ddd99328507bee0bf45d699d0e14840e6468c2e
+/.idea/sonarlint/securityhotspotstore/1/2/1291c2e6dbf7ce3fbca1ede3d084cdcb1917bec7
+/.idea/sonarlint/securityhotspotstore/3/c/3cac19ba68ce50bf6de67bd310f202579334c697
+/.idea/sonarlint/securityhotspotstore/4/2/42e89e4b918c7375b3748812499f5574db6ce15e
+/.idea/sonarlint/securityhotspotstore/4/a/4ac5f47ed05ced5dbc25412ccf4bd2f72bf2a6cf
+/.idea/sonarlint/securityhotspotstore/5/0/50743d32504562bf56d967a507ab14bc7e9d7a6f
+/.idea/sonarlint/securityhotspotstore/7/4/7445606fbf8f3683cd42bdc54b05d7a0bc2dfc44
+/.idea/sonarlint/securityhotspotstore/8/c/8ccddd01c7b31786124c28fdfed80d8cc4d3417a
+/.idea/sonarlint/securityhotspotstore/8/e/8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
+/.idea/sonarlint/securityhotspotstore/b/a/ba4e7fcbda869985762d39de443303267d4b9311
+/.idea/sonarlint/securityhotspotstore/e/1/e1c06ac3ec549b51331f46a3e4282f554ed6396f
+/.idea/sonarlint/securityhotspotstore/index.pb
+/.idea/**
+/cmake-build-debug/**
