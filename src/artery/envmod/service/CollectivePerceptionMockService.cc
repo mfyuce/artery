@@ -139,8 +139,79 @@ void CollectivePerceptionMockService::trigger()
 void CollectivePerceptionMockService::indicate(const vanetza::btp::DataIndication&, omnetpp::cPacket* packet)
 {
     auto cpm = omnetpp::check_and_cast<CollectivePerceptionMockMessage*>(packet);
+    recordPacket(*cpm, receivedCPMs);
     emit(cpmReceivedSignal, cpm);
     delete packet;
+}
+
+
+void CollectivePerceptionMockService::recordPacket(CollectivePerceptionMockMessage& cpm, std::stringstream& buffer)
+{
+    using namespace vanetza;
+
+    buffer << "{"
+           << "\"destination_port\":" << host_cast<PortNumber>(getPortNumber()) << ","
+           << "\"transport_type\":" << static_cast<int>(geonet::TransportType::SHB) << ","
+           << "\"tc_id\":" << mDccProfile << ","
+           << "\"communication_profile\":" << static_cast<int>(geonet::CommunicationProfile::ITS_G5) << ",";
+
+
+    buffer << "\"fov_containers\": [ ";
+    for (CollectivePerceptionMockMessage::FovContainer fovContainer : cpm.getFovContainers()) {
+        buffer << "{"
+               << "\"angle\":" << fovContainer.fov.angle.value() << ","
+               << "\"range\":" << fovContainer.fov.range.value() << ","
+               << "\"position\":" << static_cast<int>(fovContainer.position) << ","
+               << "\"sensorId\":" << fovContainer.sensorId << "},";
+    }
+    buffer << "],";
+
+    buffer << "\"last_fov\":" << mFovLast << ",";
+
+    buffer << "\"tracked_objects\": [ ";
+
+
+    for (const auto& objectContainer : cpm.getObjectContainers()) {
+        buffer << "\"objectId\":" << objectContainer.objectId << ","
+               << "\"sensorId\":" << objectContainer.sensorId << ","
+               << "\"timeOfMeasurement\":" << objectContainer.timeOfMeasurement << ",";
+
+        EnvironmentModelObject* o = objectContainer.object.lock().get();
+        if (o != NULL) {
+            buffer << "\"object\": { "
+                   << "\"center_x\":" << o->getCentrePoint().x.value() << ","
+                   << "\"center_y\":" << o->getCentrePoint().y.value() << ","
+                   << "\"external_id\":\"" << o->getExternalId() << "\","
+                   << "\"length\":" << o->getLength().value()
+                   << ","
+                   // TODO: o->getOutline()
+                   << "\"radius\":" << o->getRadius().value() << ","
+                   << "\"width\":" << o->getWidth().value() << ","
+                   << "\"vehicle\": {"
+                   << "\"x\":" << o->getVehicleData().position().x.value() << ","
+                   << "\"y\":" << o->getVehicleData().position().y.value() << ","
+                   << "\"acceleration\":" << o->getVehicleData().acceleration().value() << ","
+                   << "\"curvature\":" << o->getVehicleData().curvature().value() << ","
+                   << "\"curvature_confidence\":" << o->getVehicleData().curvature_confidence() << ","
+                   << "\"station_id\":" << o->getVehicleData().station_id() << ","
+                   << "\"station_type\":" << static_cast<int>(o->getVehicleData().getStationType()) << ","
+                   << "\"heading\":" << o->getVehicleData().heading().value() << ","
+                   << "\"latitude\":" << o->getVehicleData().latitude().value() << ","
+                   << "\"longitude\":" << o->getVehicleData().longitude().value() << ","
+                   << "\"speed\":" << o->getVehicleData().speed().value() << ","
+                   << "\"updated\":" << o->getVehicleData().updated().dbl() << ","
+                   << "\"yaw_rate\":" << o->getVehicleData().yaw_rate().value() << ","
+                   << "},"
+                   << "}";
+        }
+        generatedCPMs << "},";
+    }
+    generatedCPMs << "],";
+
+
+    generatedCPMs << "\"length\":" << cpm.getByteLength() << ","
+                  << "\"mHostId\":" << mHostId << "},"
+                  << "\n";
 }
 
 void CollectivePerceptionMockService::generatePacket()
@@ -155,34 +226,15 @@ void CollectivePerceptionMockService::generatePacket()
     auto packet = new CollectivePerceptionMockMessage();
     packet->setByteLength(mLengthHeader);
 
-    generatedCPMs << "{"
-           << "\"destination_port\":" <<  req.destination_port << ","
-           << "\"transport_type\":" << static_cast<int>(geonet::TransportType::SHB) << ","
-           << "\"tc_id\":" <<  mDccProfile << ","
-           << "\"communication_profile\":" << static_cast<int>(req.gn.communication_profile) << ",";
-
 
     if (mFovLast + mFovInterval <= omnetpp::simTime()) {
         packet->setFovContainers(mFovContainers);
         packet->addByteLength(mLengthFovContainer * mFovContainers.size());
-        generatedCPMs << "\"fov_containers\": [ ";
-        for (CollectivePerceptionMockMessage::FovContainer fovContainer : mFovContainers) {
-            generatedCPMs << "{"
-                   << "\"angle\":"<< fovContainer.fov.angle.value() << ","
-                   << "\"range\":"<< fovContainer.fov.range.value() << ","
-                   << "\"position\":"<< static_cast<int>(fovContainer.position) << ","
-                   << "\"sensorId\":"<< fovContainer.sensorId
-                   << "},";
-        }
-        generatedCPMs << "],";
-
         mFovLast = omnetpp::simTime();
-        generatedCPMs <<  "\"last_fov\":" << mFovLast << ",";
     }
 
     std::vector<CollectivePerceptionMockMessage::ObjectContainer> objectContainers;
     using TrackedObject = LocalEnvironmentModel::TrackedObject;
-    generatedCPMs << "\"tracked_objects\": [ ";
     for (const TrackedObject& object : mEnvironmentModel->allObjects()) {
         const LocalEnvironmentModel::Tracking& tracking = object.second;
         if (tracking.expired()) {
@@ -192,62 +244,21 @@ void CollectivePerceptionMockService::generatePacket()
 
         for (const auto& sensor : tracking.sensors()) {
             if (mSensors.find(sensor.first) != mSensors.end()) {
-                generatedCPMs << "{";
                 CollectivePerceptionMockMessage::ObjectContainer objectContainer;
                 objectContainer.object = object.first;
                 objectContainer.objectId = tracking.id();
                 objectContainer.sensorId = sensor.first->getId();
                 objectContainer.timeOfMeasurement = sensor.second.last();
-
-                generatedCPMs << "\"objectId\":"<< objectContainer.objectId << ","
-                       << "\"sensorId\":"<< objectContainer.sensorId << ","
-                       << "\"timeOfMeasurement\":"<< objectContainer.timeOfMeasurement << ",";
-
                 objectContainers.emplace_back(std::move(objectContainer));
                 EnvironmentModelObject* o = object.first.lock().get();
-                if(o!=NULL) {
-                    generatedCPMs << "\"object\": { "
-                           << "\"center_x\":" << o->getCentrePoint().x.value() << ","
-                           << "\"center_y\":" << o->getCentrePoint().y.value() << ","
-                           << "\"external_id\":\"" << o->getExternalId() << "\","
-                           << "\"length\":" << o->getLength().value()
-                           << ","
-                           // TODO: o->getOutline()
-                           << "\"radius\":" << o->getRadius().value() << ","
-                           << "\"width\":" << o->getWidth().value() << ","
-                           << "\"vehicle\": {"
-                           << "\"x\":" << o->getVehicleData().position().x.value() << ","
-                           << "\"y\":" << o->getVehicleData().position().y.value() << ","
-                           << "\"acceleration\":" << o->getVehicleData().acceleration().value() << ","
-                           << "\"curvature\":" << o->getVehicleData().curvature().value() << ","
-                           << "\"curvature_confidence\":" << o->getVehicleData().curvature_confidence() << ","
-                           << "\"station_id\":" << o->getVehicleData().station_id() << ","
-                           << "\"station_type\":" << static_cast<int>(o->getVehicleData().getStationType()) << ","
-                           << "\"heading\":" << o->getVehicleData().heading().value() << ","
-                           << "\"latitude\":" << o->getVehicleData().latitude().value() << ","
-                           << "\"longitude\":" << o->getVehicleData().longitude().value() << ","
-                           << "\"speed\":" << o->getVehicleData().speed().value() << ","
-                           << "\"updated\":" << o->getVehicleData().updated().dbl() << ","
-                           << "\"yaw_rate\":" << o->getVehicleData().yaw_rate().value() << ","
-                           << "},"
-                           << "}";
-                }
-                generatedCPMs << "},";
             }
         }
     }
-    generatedCPMs << "],";
-
     packet->addByteLength(mLengthObjectContainer * objectContainers.size());
     packet->setObjectContainers(std::move(objectContainers));
     packet->setSourceStation(mHostId);
 
-    generatedCPMs <<  "\"length\":" << packet->getByteLength() << ","
-           <<  "\"mHostId\":" << mHostId
-        << "}," <<   "\n";
-
-
-
+    recordPacket(*packet, generatedCPMs);
     emit(cpmSentSignal, packet);
     request(req, packet);
 }

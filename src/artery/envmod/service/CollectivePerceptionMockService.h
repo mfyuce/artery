@@ -32,7 +32,7 @@ class CollectivePerceptionMockService : public ItsG5Service
         void receiveSignal(omnetpp::cComponent*, omnetpp::simsignal_t, omnetpp::cObject*, omnetpp::cObject*) override;
         void generatePacket();
         void indicate(const vanetza::btp::DataIndication&, omnetpp::cPacket*) override;
-
+        void recordPacket(CollectivePerceptionMockMessage& cpm, std::stringstream& buffer);
     private:
         int mHostId = 0;
         const PositionProvider* mPositionProvider = nullptr;
