@@ -16,6 +16,7 @@
 #include <omnetpp/cpacket.h>
 
 #include <fstream>
+#include <mutex>
 
 namespace artery
 {
@@ -139,7 +140,7 @@ void CollectivePerceptionMockService::trigger()
 void CollectivePerceptionMockService::indicate(const vanetza::btp::DataIndication&, omnetpp::cPacket* packet)
 {
     auto cpm = omnetpp::check_and_cast<CollectivePerceptionMockMessage*>(packet);
-    recordPacket(*cpm, receivedCPMs);
+    recordPacket(*cpm, indicatedCPMs);
     emit(cpmReceivedSignal, cpm);
     delete packet;
 }
@@ -147,16 +148,18 @@ void CollectivePerceptionMockService::indicate(const vanetza::btp::DataIndicatio
 
 void CollectivePerceptionMockService::recordPacket(CollectivePerceptionMockMessage& cpm, std::stringstream& buffer)
 {
+    ostream_mutex.lock();
     using namespace vanetza;
-
-    buffer << "{"
-           << "\"destination_port\":" << host_cast<PortNumber>(getPortNumber()) << ","
+    buffer << "{";
+    {
+        buffer << "\"destination_port\":" << host_cast<PortNumber>(getPortNumber()) << ","
            << "\"transport_type\":" << static_cast<int>(geonet::TransportType::SHB) << ","
            << "\"tc_id\":" << mDccProfile << ","
            << "\"communication_profile\":" << static_cast<int>(geonet::CommunicationProfile::ITS_G5) << ",";
 
 
     buffer << "\"fov_containers\": [ ";
+        {
     for (CollectivePerceptionMockMessage::FovContainer fovContainer : cpm.getFovContainers()) {
         buffer << "{"
                << "\"angle\":" << fovContainer.fov.angle.value() << ","
@@ -164,14 +167,16 @@ void CollectivePerceptionMockService::recordPacket(CollectivePerceptionMockMessa
                << "\"position\":" << static_cast<int>(fovContainer.position) << ","
                << "\"sensorId\":" << fovContainer.sensorId << "},";
     }
+        };
     buffer << "],";
 
     buffer << "\"last_fov\":" << mFovLast << ",";
 
     buffer << "\"tracked_objects\": [ ";
-
-
+        {
     for (const auto& objectContainer : cpm.getObjectContainers()) {
+            buffer << "{";
+            {
         buffer << "\"objectId\":" << objectContainer.objectId << ","
                << "\"sensorId\":" << objectContainer.sensorId << ","
                << "\"timeOfMeasurement\":" << objectContainer.timeOfMeasurement << ",";
@@ -200,18 +205,21 @@ void CollectivePerceptionMockService::recordPacket(CollectivePerceptionMockMessa
                    << "\"longitude\":" << o->getVehicleData().longitude().value() << ","
                    << "\"speed\":" << o->getVehicleData().speed().value() << ","
                    << "\"updated\":" << o->getVehicleData().updated().dbl() << ","
-                   << "\"yaw_rate\":" << o->getVehicleData().yaw_rate().value() << ","
-                   << "},"
+                           << "\"yaw_rate\":" << o->getVehicleData().yaw_rate().value() << "}"
                    << "}";
         }
-        generatedCPMs << "},";
+        buffer << "},";
     }
-    generatedCPMs << "],";
+        }
+    buffer << "],";
+        };
 
-
-    generatedCPMs << "\"length\":" << cpm.getByteLength() << ","
+    buffer << "\"length\":" << cpm.getByteLength() << ","
                   << "\"mHostId\":" << mHostId << "},"
                   << "\n";
+    };
+
+    ostream_mutex.unlock();
 }
 
 void CollectivePerceptionMockService::generatePacket()

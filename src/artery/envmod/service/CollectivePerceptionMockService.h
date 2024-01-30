@@ -12,6 +12,7 @@
 #include "artery/networking/PositionProvider.h"
 
 #include <fstream>
+#include <mutex>
 #include <unordered_set>
 #include <vector>
 
@@ -53,6 +54,7 @@ class CollectivePerceptionMockService : public ItsG5Service
         std::stringstream generatedCPMs;
         std::stringstream receivedCPMs;
         std::stringstream indicatedCPMs;
+        std::mutex ostream_mutex{};
 };
 
 } // namespace artery
