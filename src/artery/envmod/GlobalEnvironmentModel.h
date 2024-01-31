@@ -7,18 +7,21 @@
 #ifndef GLOBALENVIRONMENTMODEL_H_
 #define GLOBALENVIRONMENTMODEL_H_
 
-#include "artery/envmod/sensor/SensorDetection.h"
-#include "artery/envmod/Geometry.h"
 #include "artery/envmod/EnvironmentModelObject.h"
 #include "artery/envmod/EnvironmentModelObstacle.h"
+#include "artery/envmod/Geometry.h"
+#include "artery/envmod/sensor/SensorDetection.h"
 #include "artery/utility/Geometry.h"
+
+#include <boost/geometry/index/rtree.hpp>
 #include <omnetpp/ccanvas.h>
 #include <omnetpp/clistener.h>
 #include <omnetpp/csimplemodule.h>
-#include <boost/geometry/index/rtree.hpp>
-#include <unordered_map>
+
 #include <memory>
+#include <mutex>
 #include <string>
+#include <unordered_map>
 
 
 namespace traci {
@@ -159,6 +162,9 @@ private:
     omnetpp::cGroupFigure* mDrawObstacles = nullptr;
     omnetpp::cGroupFigure* mDrawVehicles = nullptr;
     std::set<std::string> mObstacleTypes;
+    std::stringstream env;
+    std::mutex ostream_mutex{};
+    void recordStepGDM(double step, std::stringstream& buffer);
 };
 
 } // namespace artery
