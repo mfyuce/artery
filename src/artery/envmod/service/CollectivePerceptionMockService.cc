@@ -97,6 +97,10 @@ void CollectivePerceptionMockService::initialize(int stage)
                 fovContainer.sensorId = sensor->getId();
                 fovContainer.position = sensor->position();
                 fovContainer.fov = fovSensor->getFieldOfView();
+//                fovContainer.sensorName = fovSensor->getSensorName();
+//                fovContainer.sensorCategory = fovSensor->getSensorCategory();
+//                fovContainer.sensorFullName = fovSensor->getFullName();
+//                fovContainer.sensorShortName = fovSensor->getName();
                 mFovContainers.emplace_back(std::move(fovContainer));
                 mSensors.insert(sensor);
             }
@@ -152,8 +156,9 @@ void CollectivePerceptionMockService::recordPacket(CollectivePerceptionMockMessa
     using namespace vanetza;
     buffer << "{";
     {
-        buffer << "\"destination_port\":" << host_cast<PortNumber>(getPortNumber()) << ","
-           << "\"transport_type\":" << static_cast<int>(geonet::TransportType::SHB) << ","
+        buffer << "\"step\":" << omnetpp::simTime().dbl() << ","
+               << "\"destination_port\":" << host_cast<PortNumber>(getPortNumber()) << ","
+               << "\"transport_type\":" << static_cast<int>(geonet::TransportType::SHB) << ","
            << "\"tc_id\":" << mDccProfile << ","
            << "\"communication_profile\":" << static_cast<int>(geonet::CommunicationProfile::ITS_G5) << ",";
 
@@ -278,3 +283,20 @@ CollectivePerceptionMockService::CollectivePerceptionMockService():mGenerateAfte
 
 } // namespace artery
 //sed  -E  's/\},]/}]/g' generate.txt > generate_edited.json && sed  -i -E 's/,\}/}/g'  generate_edited.json
+
+//sed  -E  's/\},]/}]/g' generate.txt > generate_edited.json && sed  -i -E 's/,\}/}/g'  generate_edited.json
+//sed  -E  's/\},]/}]/g' receive.txt > receive_edited.json && sed  -i -E 's/,\}/}/g'  receive_edited.json
+//sed  -E  's/\},]/}]/g' indicate.txt > indicate_edited.json && sed  -i -E 's/,\}/}/g'  indicate_edited.json
+//sed  -E  's/\},]/}]/g' env.txt > env_edited.json && sed  -i -E 's/,\}/}/g'  env_edited.json
+//attacks: https://github.com/quic/vasp
+//https://github.com/quic/autopen?tab=readme-ov-file
+//https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9920388/
+//https://www.youtube.com/watch?v=xfFjaMn9z8s&themeRefresh=1
+//https://github.com/ibr-cm/a4md
+//https://ieeexplore.ieee.org/document/10136315/authors#authors
+//https://www.diva-portal.org/smash/get/diva2:1440195/FULLTEXT01.pdf
+//https://github.com/topics/v2x?l=c%2B%2B
+//https://groups.google.com/g/omnetpp/c/F5NJKLcOaXI?pli=1
+//https://webthesis.biblio.polito.it/29324/1/tesi.pdf
+//https://dl.acm.org/doi/abs/10.1145/3565287.3617616
+//https://www.google.com/search?q=A4MD&sourceid=chrome&ie=UTF-8#ip=1

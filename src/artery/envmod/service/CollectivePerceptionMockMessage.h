@@ -19,6 +19,10 @@ public:
         int sensorId = 0;
         SensorPosition position;
         FieldOfView fov;
+//        std::string sensorName;
+//        std::string sensorCategory;
+//        std::string sensorFullName;
+//        std::string sensorShortName;
     };
 
     struct ObjectContainer

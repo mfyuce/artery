@@ -424,15 +424,15 @@ void GlobalEnvironmentModel::recordStepGDM(double step, std::stringstream& buffe
 
         buffer << "\"obstacles\": [";
         {
-            for (auto& obstacle_kv : mObstacles) {
-                auto o = obstacle_kv.second;
-                // auto outline = o->getOutline();
-                buffer << "{";
-                {
-                    buffer << "\"obstacle_id\": \"" << o->getObstacleId() << "\"";
-                };
-                buffer << "},";
-            }
+//            for (auto& obstacle_kv : mObstacles) {
+//                auto o = obstacle_kv.second;
+//                // auto outline = o->getOutline();
+//                buffer << "{";
+//                {
+//                    buffer << "\"obstacle_id\": \"" << o->getObstacleId() << "\"";
+//                };
+//                buffer << "},";
+//            }
         };
         buffer << "],";
     };
